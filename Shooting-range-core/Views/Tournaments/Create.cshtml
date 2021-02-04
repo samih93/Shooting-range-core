@@ -1,0 +1,104 @@
+﻿@model Tournament
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>اضافة دورة</h1>
+
+<div class="container">
+
+    <div class="col-md-8">
+        <form asp-action="Create" class="needs-validation" novalidate>
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <label asp-for="TournamentName" class="control-label"></label>
+                    <input asp-for="TournamentName" class="form-control gj-textbox-md" required />
+                    <span asp-validation-for="TournamentName" class="text-danger"></span>
+                   
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="TournamentDate" class="control-label"></label>
+                    <input type="text" asp-for="TournamentDate" value="@Model.TournamentDate.ToString("yyyy-MM-dd")" class="form-control datepicker" required />
+                    <span asp-validation-for="TournamentDate" class="text-danger"></span>
+                  
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-4">
+
+                    <label asp-for="FromTime" class="control-label"></label>
+                    <input asp-for="FromTime" class="form-control" id="StartTime" required />
+                    <span asp-validation-for="FromTime" class="text-danger"></span>
+                   
+                </div>
+                <div class="col-md-4">
+
+                    <label asp-for="ToTime" class="control-label"></label>
+                    <input asp-for="ToTime" class="form-control" id="EndTime" required />
+                    <span asp-validation-for="ToTime" class="text-danger"></span>
+                  
+                </div>
+            </div>
+
+            <div class="form-group row">
+                <div class="col-md-4">
+                    <label asp-for="WeaponKind" class="control-label"></label>
+                    <input asp-for="WeaponKind" class="form-control gj-textbox-md" />
+                    <span asp-validation-for="WeaponKind" class="text-danger"></span>
+                </div>
+                <div class="col-md-4">
+                    <label asp-for="ShootingFieldId" class="control-label"></label>
+                    <select asp-for="ShootingFieldId" asp-items="ViewBag.ShootingFields" class="form-control"></select>
+                </div>
+
+            </div>
+            <div class="form-group row">
+
+                <div class="col-md-8">
+
+                    <label asp-for="Notes" class="control-label"></label>
+                    <input asp-for="Notes" class="form-control gj-textbox-md" />
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="حفظ" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">الرجوع الى القائمة</a>
+</div>
+@section Styles
+{
+    <link href="~/lib/gijgo Library/gijgo.min.css" rel="stylesheet" />
+}
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script src="~/lib/gijgo Library/gijgo.min.js"></script>
+
+<script>
+     (function () {
+        'use strict';
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+            // Loop over them and prevent submission
+            var validation = Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
+        }, false);
+    })();
+</script>
+}

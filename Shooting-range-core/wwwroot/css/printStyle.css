@@ -1,0 +1,29 @@
+﻿.bodytoprint {
+    padding: 15px;
+}
+#printtable {
+    border: 1px solid black;
+    width: 100%;
+}
+
+    #printtable th, #printtable td {
+        border-collapse: collapse;
+        border: 1px solid black;
+        padding: 5px;
+    }
+h4 {
+    text-align: right;
+}
+h2 {
+    text-align:center;
+}
+#printtable tr td:first-child {
+    width: 130px;
+}
+
+.btnprint {
+    text-decoration: none;
+    float: left;
+    color: #3399fe;
+}
+

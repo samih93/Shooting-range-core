@@ -1,0 +1,262 @@
+﻿@model IEnumerable<Shooting_range_core.Models.Tournament>
+
+<div class="container">
+    <div class="row">
+
+        <div class="col-md-10">
+            <h1 id="monthName"></h1>
+        </div>
+    </div>
+
+
+    <div class="row">
+
+        <div class="col-md-10">
+            <div id="calHolder"></div>
+        </div>
+        <div class="col-md-2">
+            <div id="nav"></div>
+        </div>
+    </div>
+    <div class="eventsHolder">
+        <table class="Tournamentdatamonthly hidden">
+            <thead>
+                <tr>
+                    <th>
+                        @Html.DisplayNameFor(model => model.Id)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TournamentName)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.TournamentDate)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.FromTime)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ToTime)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.WeaponKind)
+                    </th>
+                    <th>
+                        @Html.DisplayNameFor(model => model.ShootingFieldId)
+                    </th>
+
+                    <th>
+                        @Html.DisplayNameFor(model => model.Notes)
+                    </th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td class="Id">
+                            @Html.DisplayFor(modelItem => item.Id)
+                        </td>
+                        <td class="TournamentName">
+                            @Html.DisplayFor(modelItem => item.TournamentName)
+                        </td>
+                        <td class="TournamentDate">
+                            @Html.DisplayFor(modelItem => item.TournamentDate)
+                        </td>
+                        <td class="FromTime">
+                            @Html.DisplayFor(modelItem => item.FromTime)
+                        </td>
+                        <td class="ToTime">
+                            @Html.DisplayFor(modelItem => item.ToTime)
+                        </td>
+                        <td class="WeaponKind">
+                            @Html.DisplayFor(modelItem => item.WeaponKind)
+                        </td>
+                        <td class="ShootingName">
+                            @Html.DisplayFor(modelItem => item.ShootingField.ShootingName)
+                        </td>
+
+                        <td class="Notes">
+                            @Html.DisplayFor(modelItem => item.Notes)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                            <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
+                            <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@section Styles
+{
+    <link href="~/dailyPilotCalendar/css/media/elements.css" rel="stylesheet" />
+    <link href="~/dailyPilotCalendar/css/themes/month_traditional.css" rel="stylesheet" />
+    <link href="~/dailyPilotCalendar/css/themes/navigator_green.css" rel="stylesheet" />
+}
+
+@section Scripts
+{
+    <script src="~/js/jquery.js"></script>
+    <script src="~/dailyPilotCalendar/js/daypilot-all.min.js"></script>
+    <script type="text/javascript">
+        function treatAsUTC(date) {
+            var result = new Date(date);
+            result.setMinutes(result.getMinutes() - result.getTimezoneOffset());
+            return result;
+        }
+
+        function daysBetween(startDate, endDate) {
+            var millisecondsPerDay = 24 * 60 * 60 * 1000;
+            return (treatAsUTC(endDate) - treatAsUTC(startDate)) / millisecondsPerDay;
+        }
+
+        function get_current_date() {
+            var d = new Date();
+            var month = d.getMonth() + 1;
+            var day = d.getDate();
+            var strDate = d.getFullYear() + '-' + (month < 10 ? '0' : '') + month + '-' + (day < 10 ? '0' : '') + day;
+            return strDate.toString();
+        }
+
+
+        function populate_events_holder(dp, start_date) {
+            var tournamentDataUrl = "CalendarMonthly?start_date=" + start_date;
+            //clearing events
+
+            dp.events.list = [];
+
+            //get events
+            $.ajax({
+                url: tournamentDataUrl
+            }).success(function (data) {
+               $(".eventsHolder").html($(data).find(".Tournamentdatamonthly"));
+            }).done(function (data) {
+
+                // generate and load events
+                $(".Tournamentdatamonthly tr").each(function () {
+                    if ($(this).find(".Id").length > 0) {
+                        var tournementId = $(this).find(".Id").text();
+                        var tournamentName = $(this).find(".TournamentName").text();
+                        var fromTime = $(this).find(".FromTime").text();
+                        var tournamentDate = $(this).find(".TournamentDate").text().trim() + "T00:00:00";
+
+                        var duration = daysBetween(tournamentDate, tournamentDate);
+                        var to_time = $(this).find(".ToTime").text();
+                        var weaponKind = $(this).find(".WeaponKind").text();
+                        var shootingName = $(this).find(".ShootingName").text();
+                        var color_code = $(this).find(".eventColorCode").text();
+                        var Notes = $(this).find(".Notes").text();
+
+
+                        var e = new DayPilot.Event({
+                            start: new DayPilot.Date(tournamentDate),
+                            end: new DayPilot.Date(tournamentDate).addDays(duration + 1),
+                            id: DayPilot.guid(),
+                            text: tournamentName,
+                            backColor: color_code,
+                            moveDisabled: true,
+                            tags: {
+                                id: tournementId,
+                                real_start_date: new DayPilot.Date(tournamentDate),
+                                tournament_Name: tournamentName,
+                                from: fromTime,
+                                to: to_time,
+                                shooting_name: shootingName,
+                                Notes: Notes,
+                                url: "myurl"
+                            }
+                        });
+                        dp.events.add(e);
+                    }
+                })
+                dp.update();
+            });
+        }
+
+        $(window).load(function () {
+            DayPilot.Locale.register(new DayPilot.Locale('ar-sa', {
+                'dayNames': ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'],
+                'dayNamesShort': ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+                'monthNames': ['كانون الثاني', 'شباط', 'آذار', 'نيسان', 'أيار', 'حزيران', 'تموز', 'آب', 'أيلول', 'تشرين الأول', 'تشرين الثاني', 'كانون الأول'],
+                'monthNamesShort': ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                'timePattern': 'h:mm tt',
+                'datePattern': 'M/d/yyyy',
+                'dateTimePattern': 'M/d/yyyy h:mm tt',
+                'timeFormat': 'Clock12Hours',
+                'weekStarts': 1
+            }
+            ));
+
+            var locale_name = "ar-sa";
+
+
+            var dp = new DayPilot.Month("calHolder");
+            dp.locale = locale_name;
+            dp.ShowToolTip = false;
+            dp.cssClassPrefix = "month_traditional";
+            dp.allowMultiSelect = false;
+            //start by monday
+            dp.weekStarts = 1;
+            // behavior and appearance
+            dp.cellMarginBottom = 20;
+
+
+            var bubble_html = "";
+            dp.bubble = new DayPilot.Bubble({
+                position: "Mouse",
+                animation: "slow",
+                onLoad: function (args) {
+                    var ev = args.source;
+                     args.html = "<table class='bubbleContainer'>"
+                        + "<tr><td><b> إسم الدورة </b></td><td><b>: </b></td><td>" + ev.text()
+                        + "</td></tr><tr><td><b>  تاريخ الدورة   </b></td><td><b>: </b></td><td>" + DayPilot.Date(ev.tag("real_start_date")).toString("dd/MM/yyyy")
+                        + "</td></tr><tr><td><b>  من  </b></td><td><b>: </b></td><td>" + ev.tag("from")
+                        + "</td></tr><tr><td><b>  الى  </b></td><td><b>: </b></td><td>" + ev.tag("to")
+                        + "</td></tr><tr><td><b>  الحقل  </b></td><td><b>: </b></td><td>" + ev.tag("shooting_name")
+                        + "</td></tr><tr><td><b>  ملاحضات  </b></td><td><b>: </b></td><td>" + + ev.tag("Notes");                        + "</td></tr></table>";
+
+                }
+            });
+
+            // view by default current date
+            dp.startDate = get_current_date();
+
+          
+
+            dp.init();
+            $("#monthName").html(DayPilot.Date(dp.startDate).toString("MMMM", locale_name));
+            populate_events_holder(dp, get_current_date());
+
+            var nav = new DayPilot.Navigator("nav");
+
+            nav.showMonths = 3;
+            nav.skipMonths = 3;
+            nav.locale = locale_name;
+            nav.theme = "navigator_green"
+            nav.selectMode = "month";
+            nav.freeHandSelectionEnabled = true;
+
+            nav.onTimeRangeSelected = function (args) {
+                var start_date_nav = args.start;
+                dp.startDate = start_date_nav;
+                populate_events_holder(dp, start_date_nav);
+                dp.update();
+                $("#monthName").html(DayPilot.Date(dp.startDate).toString("MMMM", locale_name));
+            };
+            nav.onBeforeCellRender = function (args) {
+                if (args.cell.isCurrentMonth) {
+                    args.cell.cssClass = "current-month";
+                }
+            };
+            nav.init();
+            $("#download-button").click(function (ev) {
+                ev.preventDefault();
+                dp.exportAs("jpeg", { area: "full" }).download();
+            });
+        })
+             $(".CalendarMonthlyLink").addClass("active");
+    </script>
+}

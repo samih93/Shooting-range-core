@@ -1,0 +1,231 @@
+﻿@model TournamentVM
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1 class="text-center">@Model.ArabicMonthName</h1>
+<input hidden class="ArabicMonthame" asp-for="@Model.ArabicMonthName" value="@Model.ArabicMonthName" />
+
+<p>
+    <a asp-action="Create" class="btn-link">اضافة دورة</a>
+</p>
+
+
+@using (Html.BeginForm("Index", "Tournaments", FormMethod.Post))
+{
+    <div class="form-horizontal">
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <div class="form-group row">
+            <label class="control-label mt-1">السنة</label>
+            <div class="col-md-2">
+                @Html.DropDownListFor(m => m.Year, Model.DDlYear, new { @class = "form-control" })
+
+            </div>
+            <label class="control-label mt-1">الشهر</label>
+            <div class="col-md-2">
+                @Html.DropDownListFor(m => m.Month, Model.DDlMonth, new { @class = "form-control" })
+
+            </div>
+            <label class="control-label mt-1">الحقل</label>
+            <div class="col-md-2">
+                @Html.DropDownListFor(m => m.ShootingFieldId, Model.DDLShootingField, new { @class = "form-control" })
+
+            </div>
+            <div class="col-md-1 mb-1">
+                <input type="submit" value="اختيار" class="btn btn-primary" />
+            </div>
+            <div class="col-md-2 mb-1">
+                <input type="button" value="تحميل الجدول" class="btn btn-primary" onclick="return PrintTournamentList()" />
+            </div>
+
+        </div>
+    </div>
+}
+<hr />
+<table id="TorunamentTable" class="display nowrap dataTable table-striped table-bordered dt-responsive" border="1" style="width:100%">
+    <thead>
+        <tr>
+            <th class="all">
+                @Html.DisplayNameFor(model => model.Tournaments.First().TournamentDate)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tournaments.First().TournamentName)
+            </th>
+
+            <th>
+                @Html.DisplayNameFor(model => model.Tournaments.First().FromTime)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tournaments.First().ToTime)
+            </th>
+            <th class="none">
+                @Html.DisplayNameFor(model => model.Tournaments.First().WeaponKind)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Tournaments.First().ShootingField.ShootingName)
+            </th>
+
+            <th class="none">
+                @Html.DisplayNameFor(model => model.Tournaments.First().Notes)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model.Tournaments)
+        {
+            <tr>
+                <td class="TournamentDate">
+                    @Html.DisplayName(item.ArabicDayName + " - " + item.TournamentDate.ToString("yyyy-MM-dd"))
+                </td>
+                <td class="TournamentName">
+                    @Html.DisplayFor(modelItem => item.TournamentName)
+                </td>
+
+                <td class="FromTime">
+                    @Html.DisplayFor(modelItem => item.FromTime)
+                </td>
+                <td class="ToTime">
+                    @Html.DisplayFor(modelItem => item.ToTime)
+                </td>
+                <td class="WeaponKind">
+                    @Html.DisplayFor(modelItem => item.WeaponKind)
+                </td>
+                <td class="ShootingFieldId">
+                    @Html.DisplayFor(modelItem => item.ShootingField.ShootingName)
+                </td>
+                <td class="Notes">
+                    @Html.DisplayFor(modelItem => item.Notes)
+                </td>
+
+                <td class="d-print-none">
+                    <a asp-action="Edit" asp-route-id="@item.Id">تعديل</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">حذف</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+
+@section Styles {
+
+    <link href="~/css/DataTables/jquery.dataTables.min.css" rel="stylesheet" />
+    <link href="~/css/DataTables/responsive.dataTables.min.css" rel="stylesheet" />
+    <link href="~/css/DataTables/buttons.dataTables.min.css" rel="stylesheet" />
+    <link href="~/css/printStyle.css" class="printStyle" rel="stylesheet" />
+    <style>
+        .table.dataTable.nowrap th {
+            text-align: center;
+        }
+
+        table.dataTable {
+            border-collapse: collapse;
+        }
+
+        .form-control {
+            line-height: unset !important;
+        }
+    </style>
+
+}
+@section Scripts {
+    <script src="~/js/DataTables/jquery.dataTables.min.js"></script>
+    <script src="~/js/DataTables/dataTables.responsive.min.js"></script>
+    <script src="~/js/DataTables/dataTables.buttons.min.js"></script>
+    <script src="~/js/DataTables/buttons.colVis.min.js"></script>
+    <script src="~/js/DataTables/dataTables.Ellipsis.js"></script>
+    <script>
+
+        $(document).ready(function () {
+            $('#TorunamentTable').DataTable({
+                responsive: true,
+                language: DataTablesLang,
+                "pageLength": 100,
+                columnDefs: [
+                    { responsivePriority: 1, targets: 0 },
+                    { responsivePriority: 10001, targets: 2 },
+                    { responsivePriority: 2, targets: -2 },
+                    {
+                        targets: 0,
+                        render: $.fn.dataTable.render.ellipsis(80)
+                    },
+                    { type: 'alt-string', targets: 0 }
+                ],
+
+            });
+        });
+        $(".TournamentIndexLink").addClass("active");
+
+        function PrintTournamentList() {
+            var ArabicMonthName = $('.ArabicMonthame').attr('value');
+            var TableToPrint = "";
+            var newWin = window.open('PrintDiv', 'Print-Window', 'width=920,height=750,top=100,left=100');
+            newWin.document.open();
+            TableToPrint += "<h4>المديرية العامة لقوى الأمن الداخلي	</h4>";
+            TableToPrint += "<h4>    وحدة معهد قوى الأمن الداخلي		</h4>";
+            TableToPrint += "<h4>      كلية الضباط / حقل الرماية		</h4>";
+            TableToPrint += "<h2>      جدول الدورات عن شهر '" + ArabicMonthName+"'		</h2 > ";
+            TableToPrint += "<table id='printtable'>" +
+                "<thead>" +
+                "<tr>" +
+                "<th>التاريخ</th>" +
+                "<th>الدورة</th>" +
+                "<th>من</th>" +
+                "<th>الى</th>" +
+                "<th>نوع السلاح</th>" +
+                "<th>الحقل</th>" +
+                "<th>الأمر القاضي لإجراء الرماية</th>" +
+                "</tr>" +
+                "</thead>" +
+                "<tbody>";
+
+            $('#TorunamentTable > tbody  > tr').each(function () {
+                var TournamentName = $(this).find('.TournamentName').html();
+                var TournamentDate = $(this).find('.TournamentDate').html();
+                var FromTime = $(this).find('.FromTime').html();
+                var ToTime = $(this).find('.ToTime').html();
+                var WeaponKind = $(this).find('.WeaponKind').html();
+                var ShootingFieldId = $(this).find('.ShootingFieldId').html();
+                var Notes = $(this).find('.Notes').html();
+                TableToPrint += "<tr>" +
+                    "<td>" + TournamentDate + "</td > " +
+                    "<td>" + TournamentName + "</td > " +
+                    "<td>" + FromTime + "</td > " +
+                    "<td>" + ToTime + "</td > " +
+                    "<td>" + WeaponKind + "</td > " +
+                    "<td>" + ShootingFieldId + "</td > " +
+                    "<td>" + Notes + "</td > " +
+                    "</tr>";
+
+            });
+            TableToPrint += "</tbody></table>";
+
+            newWin.document.write("<html><body class='bodytoprint' dir='rtl'>");
+            newWin.document.write("<h4><a href='javascript:void(0);' class='btnprint' onclick='return print()'>Print</a></h4>");
+
+            //Append the external CSS file.
+            $("link[class='printStyle']").each(function () {
+                $.ajax({
+                    url: $(this).attr("href"),
+                    dataType: "text",
+                    success: function (cssText) {
+                        newWin.document.write('<style>');
+                        newWin.document.write(cssText);
+                        newWin.document.write('</style>');
+                    }
+                });
+            })
+
+            //$('<div/>').append(TableToPrint.clone()).html();
+            newWin.document.write(TableToPrint);
+            newWin.document.write("</body></html>");
+            //newWin.print();
+            //newWin.close();
+        }
+      
+    </script>
+
+}

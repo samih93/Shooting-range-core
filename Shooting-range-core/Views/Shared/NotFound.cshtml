@@ -1,0 +1,27 @@
+﻿@{
+    ViewData["Title"] = "Error";
+
+    string errorMsg = "";
+    string statusCode = "";
+    if (ViewBag.ErrorMessage != null)
+    {
+        errorMsg = (string)ViewBag.ErrorMessage;
+    }
+    if (ViewBag.StatusCode != null)
+    {
+        statusCode = (string)ViewBag.StatusCode;
+    }
+}
+
+
+<div class="container container-rtl text-center pt-5 pb-5">
+    <h1 class="text-danger">خطأ @statusCode.</h1>
+
+    @if (!String.IsNullOrEmpty(errorMsg))
+    {
+        <h2>
+            @errorMsg
+        </h2>
+    }
+
+</div>

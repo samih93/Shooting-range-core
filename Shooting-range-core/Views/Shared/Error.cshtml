@@ -1,0 +1,35 @@
+﻿@{
+    ViewData["Title"] = "Error";
+
+    string errorMsg = "";
+    bool devMode = ViewBag.DevMode != null ? (bool)ViewBag.DevMode : false;
+    if (ViewBag.ErrorMessage != null)
+    {
+        errorMsg = (string)ViewBag.ErrorMessage;
+    }
+}
+
+
+<div class="container container-rtl text-center pt-5 pb-5">
+    <h1 class="text-danger">خطأ.</h1>
+
+    @if (!String.IsNullOrEmpty(errorMsg))
+    {
+        <h2>
+            @errorMsg
+        </h2>
+    }
+</div>
+
+
+@if (devMode)
+{
+    <div class="container" style="direction:ltr;">
+        <h3>ExceptionPath:</h3>
+        <h5>@ViewBag.ExceptionPath</h5>
+        <h3>ExceptionMessage:</h3>
+        <h5>@ViewBag.ExceptionMessage</h5>
+        <h3>StackTrace:</h3>
+        <h5>@ViewBag.StackTrace</h5>
+    </div>
+}

@@ -1,7 +1,6 @@
 # Shooting-range-core
 # using 
 - .net Core 3.1
-- create users , assign roles , administration 
 - Javascript 
 - css 
 - DayPilot Calendar Library
